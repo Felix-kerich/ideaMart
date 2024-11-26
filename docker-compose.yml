@@ -1,0 +1,48 @@
+version: '3.8'
+
+services:
+  adminer-service:
+    image: adminer:latest
+    restart: unless-stopped
+    container_name: adminer
+    depends_on:
+      - mysql-service
+    networks:
+      - mysql
+    ports:
+      - "8080:8080"
+    environment:
+      ADMINER_DEFAULT_SERVER: mysql-service  
+
+  mysql-service:
+    image: mysql/mysql-server:8.0.32
+    command: ["--default-authentication-plugin=mysql_native_password"]
+    container_name: mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: kerichfelix
+      MYSQL_ROOT_HOST: "%"
+      MYSQL_DATABASE: ideamart
+    networks:
+      - mysql
+    volumes:
+      - mysql-data:/var/lib/mysql
+
+  django-service:
+    build: .
+    command: bash -c "python manage.py makemigrations && python manage.py migrate && python manage.py runserver 0.0.0.0:8000"
+    container_name: django
+    depends_on:
+      - mysql-service
+    networks:
+      - mysql
+    ports:
+      - "8000:8000"
+    environment:
+      DATABASE_URL: mysql://root:kerichfelix@mysql-service:3306/ideamart
+
+networks:
+  mysql:
+    driver: bridge
+
+volumes:
+  mysql-data:

@@ -1,0 +1,14 @@
+<form method="POST" enctype="multipart/form-data">
+    {% csrf_token %}
+    <label for="product_name">Product Name:</label>
+    <input type="text" name="product_name" id="product_name" value="{{ product.product_name }}" required>
+    
+    <label for="product_description">Description:</label>
+    <textarea name="product_description" id="product_description" required>{{ product.product_description }}</textarea>
+    
+    <label for="product_image">Product Image:</label>
+    <input type="file" name="product_image" id="product_image">
+    
+    <button type="submit">Update</button>
+  </form>
+  

@@ -1,0 +1,212 @@
+{% load static %}
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Home</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .navbar-brand img {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+        }
+        .profile-section {
+            display: flex;
+            align-items: center;
+        }
+        .profile-section img {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            margin-right: 10px;
+        }
+        .post-card {
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            padding: 15px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        .post-header {
+            display: flex;
+            align-items: center;
+            
+        }
+        .post-username {
+            font-weight: bold;
+            text-decoration: none;
+            color: #007bff;
+            margin-left: 1%;
+        }
+        .post-username:hover {
+            text-decoration: underline;
+            color:cadetblue;
+        }
+        .post-time {
+            font-size: 0.85rem;
+            color: #6c757d;
+            margin-left:70%;
+        }
+        .post-actions a {
+            margin-right: 10px;
+            text-decoration: none;
+            color: #6c757d;
+            font-size: 1.2rem;
+        }
+        .post-actions a:hover {
+            color: #007bff;
+        }
+        .user-card {
+            margin-bottom: 15px;
+            border: 1px solid #ddd;
+            padding: 15px;
+            border-radius: 8px;
+        }
+        .user-card img {
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            object-fit: cover;
+        }
+        .search-bar {
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-light shadow-sm">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#">
+                <img src="{% if user.profile.profile_picture %}{{ user.profile.profile_picture.url }}{% else %}{% static 'default-profile.png' %}{% endif %}" alt="Logo">
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'conversation_view' user_id=request.user.id %}">Messages</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'marketplace' %}">Marketplace</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">Notifications</a>
+                    </li>
+                    <li class="nav-item">
+                        <div class="search-bar">
+                            <form method="GET" action="{% url 'user_list' %}">
+                                <input type="text" name="q" class="form-control" placeholder="Search users by username..." value="{{ query }}">
+                            </form>
+                        </div>
+                    </li>
+                </ul>
+                <div class="profile-section">
+                    <a href="{% url 'profile_view' username=request.user.username %}"><img src="{% if user.profile.profile_picture %}{{ user.profile.profile_picture.url }}{% else %}{% static 'default-profile.png' %}{% endif %}" alt="Profile Picture"></a>
+                    <a href="{% url 'profile_view' username=request.user.username %}">{{ request.user.username }}</a>
+                    {% if user.is_authenticated %}
+                    <a href="{% url 'logout' %}">Logout</a>                
+                    {% endif %}
+                    
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Posts Section -->
+    <div class="container my-5">
+        <h2 class="text-center mb-4">All Posts</h2>
+        <div class="mb-4 text-end">
+            <a href="{% url 'create_post' %}" class="btn btn-primary">Create New Post</a>
+            <a href="{% url 'profile_view' username=request.user.username %}" class="btn btn-outline-secondary">My Profile</a>
+        </div>
+        
+        {% for post in posts %}
+            <div class="post-card">
+                <div class="user-card post-header">
+                    <a href="{% url 'view_profile' username=post.user.username %}"><img src="{{ post.user.profile.profile_picture.url }}" alt="Profile Picture"></a>
+                    
+                    <a href="{% url 'view_profile' username=post.user.username %}" class="post-username">{{ post.user.username }}</a>
+                    <span class="post-time">{{ post.created_at|date:"F j, Y, g:i a" }}</span>
+                </div>
+                {% if post.user == request.user %}
+                <a href="{% url 'update_post' post.id %}">Update</a>
+                <a href="{% url 'delete_post' post.id %}">Delete</a>
+                {% endif %}
+                <p class="mt-2">{{ post.description }}</p>
+                {% if post.image %}
+                    <img src="{{ post.image.url }}" alt="Post image" class="img-fluid rounded my-3">
+                {% endif %}
+                <div class="post-actions">
+                    <a href="javascript:void(0)" onclick="handleLike({{ post.id }})">❤️</a>
+                    <span id="likes-count-{{ post.id }}">{{ post.likes.count }}</span>
+            
+                    <a href="javascript:void(0)" onclick="handleDislike({{ post.id }})">👎</a>
+                    <span id="dislikes-count-{{ post.id }}">{{ post.dislikes.count }}</span>
+            
+                    <textarea id="comment-text-{{ post.id }}" placeholder="Write a comment..."></textarea>
+                    <button onclick="handleComment({{ post.id }})">Comment</button>
+                    <span id="comments-count-{{ post.id }}">{{ post.comments.count }}</span>
+                    <div id="comments-list-{{ post.id }}">
+                        {% for comment in post.comments.all %}
+                            <p>{{ comment.user.username }}: {{ comment.text }}</p>
+                        {% endfor %}
+                    </div>
+            </div>
+        {% empty %}
+            <p>No posts yet.</p>
+        {% endfor %}
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        function handleLike(postId) {
+            fetch(`/like/${postId}/`)
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById(`likes-count-${postId}`).innerText = data.likes_count;
+                });
+        }
+    
+        function handleDislike(postId) {
+            fetch(`/dislike/${postId}/`)
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById(`dislikes-count-${postId}`).innerText = data.dislikes_count;
+                });
+        }
+    
+        function handleComment(postId) {
+            const commentText = document.getElementById(`comment-text-${postId}`).value;
+    
+            fetch(`/comment/${postId}/`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/x-www-form-urlencoded",
+                    "X-CSRFToken": "{{ csrf_token }}"
+                },
+                body: `text=${commentText}`
+            })
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById(`comments-count-${postId}`).innerText = data.comments_count;
+    
+                    const commentsDiv = document.getElementById(`comments-list-${postId}`);
+                    commentsDiv.innerHTML = '';
+                    data.comments.forEach(comment => {
+                        const commentElement = document.createElement('p');
+                        commentElement.innerText = `${comment.user}: ${comment.text}`;
+                        commentsDiv.appendChild(commentElement);
+                    });
+                });
+        }
+    </script>
+    
+</body>
+</html>
