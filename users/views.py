@@ -18,22 +18,22 @@ def home_view(request):
 
 def login_view(request):
     if request.method == "POST":
-        email_or_username = request.POST.get('username')  # Field name in the form
+        email_or_username = request.POST.get('username') 
         password = request.POST.get('password')
 
-        # Try to fetch the user using email if it's not a username
+        
         try:
             user = User.objects.get(email=email_or_username)
-            username = user.username  # Retrieve the username for authentication
+            username = user.username  
         except User.DoesNotExist:
-            username = email_or_username  # Assume it's a username
+            username = email_or_username  
 
         # Authenticate using username
         user = authenticate(request, username=username, password=password)
         if user is not None:
             login(request, user)
             # messages.success(request, f"Welcome back, {user.username}!")
-            return redirect('home')  # Replace 'home' with your homepage URL name
+            return redirect('home')  
         else:
             messages.error(request, "Invalid email/username or password. Please try again.")
     

@@ -3,7 +3,7 @@ from django.shortcuts import get_object_or_404, render, redirect
 from posts.models import Post, Like, Dislike, Comment
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
-
+from django.contrib.auth.models import User
 
 @login_required
 def create_post(request):
@@ -31,6 +31,13 @@ def post(request):
 def view_posts(request):
     posts = Post.objects.all()
     return render(request, 'posts.html', {"posts": posts})
+
+@login_required
+def my_posts(request, username):
+    # Get the user by username
+    user = get_object_or_404(User, username=username)
+    posts = Post.objects.filter(user=user)
+    return render(request, 'mypost.html', {'posts': posts, 'user': user})
 
 
 @login_required

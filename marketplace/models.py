@@ -3,6 +3,7 @@ from django.contrib.auth.models import User
 
 class Product(models.Model):
     product_name = models.CharField(max_length=255)
+    price = models.CharField(max_length=255)
     product_description = models.TextField()
     product_image = models.ImageField(upload_to='products/', null=True, blank=True)
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='products')  # Track the creator

@@ -81,24 +81,23 @@ WSGI_APPLICATION = 'ideamart.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
-    }
-}
-
 # DATABASES = {
 #     'default': {
-#         'ENGINE': 'django.db.backends.mysql',
-#         'NAME': 'ideamart',
-#         'USER': 'root',
-#         'PASSWORD': 'kerichfelix',
-#         'HOST': 'mysql-service',  # Ensure this matches the service name in Docker Compose
-#         'PORT': '3306',           # Ensure this is the correct MySQL port
+#         'ENGINE': 'django.db.backends.sqlite3',
+#         'NAME': BASE_DIR / 'db.sqlite3',
 #     }
 # }
 
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'ideamart',
+        'USER': 'root',
+        'PASSWORD': 'kerichfelix',
+        'HOST': '127.0.0.1',
+        'PORT': '3306',
+    }
+}
 
 
 
@@ -152,3 +151,16 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+
+# Email backend (console for development)
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+
+# For production, use an actual email service:
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = 'alanbarrak@gmail.com'
+EMAIL_HOST_PASSWORD = 'jwnx nevx xixs kfaq'
+

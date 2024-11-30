@@ -11,12 +11,14 @@ def create_product(request):
 def post_product(request):
     if request.method == "POST":
         product_name = request.POST['product_name']
+        price = request.POST['price']
         product_description = request.POST['product_description']
         product_image = request.FILES.get('product_image')
 
         # Create a new post and associate it with the current logged-in user
         product = Product(
             product_name=product_name,
+            price = price,
             product_description=product_description,
             product_image=product_image,
             user=request.user  # Associate the post with the logged-in user
