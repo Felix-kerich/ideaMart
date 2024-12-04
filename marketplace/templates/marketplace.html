@@ -116,7 +116,7 @@
                                     <a href="{% url 'update_product' product.id %}" class="btn btn-outline-primary btn-sm">Edit</a>
                                     <a href="{% url 'delete_product' product.id %}" class="btn btn-outline-danger btn-sm">Delete</a>
                                 {% else %}
-                                    <a href="#" class="btn btn-buy btn-sm">Buy</a>
+                                    <a href="{% url 'mpesa' %}" class="btn btn-buy btn-sm">Buy</a>
                                 {% endif %}
                             </div>
                         </div>
