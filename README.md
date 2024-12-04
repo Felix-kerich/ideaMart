@@ -27,6 +27,7 @@ Welcome to **IdeaMart**, a cutting-edge platform that combines the essence of so
 ### **Backend**
 - **Django Framework**
 - **SQLite Database**
+- **MYSQL Database**
 
 ### **Additional Tools**
 - **Django Rest Framework (DRF):** API integrations.
