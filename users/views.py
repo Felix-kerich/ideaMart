@@ -61,12 +61,12 @@ def register_view(request):
         user = User.objects.create_user(
             username=username,
             email=email,
-            password=password  # Password hashing is handled automatically
+            password=password  
         )
         user.save()
 
         messages.success(request, "Registration successful! Please log in.")
-        return redirect('login')  # Replace 'login' with your login page URL name
+        return redirect('login')  
 
     return render(request, 'signup.html')
 
@@ -82,7 +82,7 @@ def update_profile_picture(request, username):
         return redirect('profile_view', username=request.user.username)
 
     if request.method == 'POST':
-        profile_picture = request.FILES.get('profile_picture')  # Ensure you retrieve the file
+        profile_picture = request.FILES.get('profile_picture')  
         if profile_picture:
             user_profile = get_object_or_404(Profile, user=request.user)
             user_profile.profile_picture = profile_picture
@@ -186,7 +186,7 @@ def conversation_view(request, user_id):
         messages = Message.objects.filter(
             (Q(sender=current_user) & Q(receiver=other_user)) |
             (Q(sender=other_user) & Q(receiver=current_user))
-        ).order_by('-timestamp')  # Latest messages appear first
+        ).order_by('timestamp') 
 
         context = {
             'messages': messages,
@@ -202,8 +202,7 @@ def conversation_view(request, user_id):
 @login_required
 def messages_user_list(request):
     query = request.GET.get('q', '')
-    users = User.objects.exclude(id=request.user.id)  # Exclude current user from the list
-
+    users = User.objects.exclude(id=request.user.id)  
     if query:
         users = users.filter(username__icontains=query)
 
@@ -238,7 +237,7 @@ def send_message(request):
 def user_logout(request):
     logout(request)
     messages.success(request, "Logout successfull welcome back... ")
-    return redirect('login')  # Redirect to the login page or homepage    
+    return redirect('login')     
 
     
 def custom_404_view(request, exception):

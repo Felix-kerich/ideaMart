@@ -88,6 +88,7 @@
                         </a>
                         <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="profileDropdown">
                             <li><a class="dropdown-item" href="{% url 'profile_view' username=request.user.username %}">My Profile</a></li>
+                            <li><a class="dropdown-item" href="{% url 'account' username=request.user.username %}">My Account</a></li>                            
                             <li><a class="dropdown-item" href="{% url 'logout' %}">Logout</a></li>
                         </ul>
                     </li>
@@ -146,20 +147,33 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
         function handleLike(postId) {
-            fetch(`/like/${postId}/`)
-                .then(response => response.json())
-                .then(data => {
-                    document.getElementById(`likes-count-${postId}`).innerText = data.likes_count;
-                });
-        }
-    
-        function handleDislike(postId) {
-            fetch(`/dislike/${postId}/`)
-                .then(response => response.json())
-                .then(data => {
-                    document.getElementById(`dislikes-count-${postId}`).innerText = data.dislikes_count;
-                });
-        }
+        // Send the like request to the server
+        fetch(`/like/${postId}/`)
+            .then(response => response.json())
+            .then(data => {
+                // Update the likes count
+                document.getElementById(`likes-count-${postId}`).innerText = data.likes_count;
+                
+                // Hide the like button and show the dislike button
+                document.getElementById(`like-button-${postId}`).style.display = 'none';
+                document.getElementById(`dislike-button-${postId}`).style.display = 'inline-block';
+            });
+    }
+
+    function handleDislike(postId) {
+        // Send the dislike request to the server
+        fetch(`/dislike/${postId}/`)
+            .then(response => response.json())
+            .then(data => {
+                // Update the dislikes count
+                document.getElementById(`dislikes-count-${postId}`).innerText = data.dislikes_count;
+
+                // Hide the dislike button and show the like button
+                document.getElementById(`dislike-button-${postId}`).style.display = 'none';
+                document.getElementById(`like-button-${postId}`).style.display = 'inline-block';
+            });
+    }
+
     
         function handleComment(postId) {
             const commentText = document.getElementById(`comment-text-${postId}`).value;

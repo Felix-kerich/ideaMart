@@ -1,6 +1,7 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponseForbidden
+from payments.models import Seller_Account
 from marketplace.models import Product
 
 @login_required
@@ -21,18 +22,28 @@ def post_product(request):
             price = price,
             product_description=product_description,
             product_image=product_image,
-            user=request.user  # Associate the post with the logged-in user
+            user=request.user  
         )
         product.save()
 
-        return redirect('marketplace')  # Redirect to the view posts page after saving
+        Seller_Account.objects.get_or_create(
+            user=request.user,
+            
+        )
 
+
+        return redirect('marketplace')  
     return render(request, 'create_product.html')
 
 @login_required
 def marketplace(request):
     products = Product.objects.all()
     return render(request, 'marketplace.html', {"products": products})
+
+@login_required
+def myproducts(request):
+    products = Product.objects.all()
+    return render(request, 'my_products.html', {"products": products})
 
 @login_required
 def update_product(request, product_id):

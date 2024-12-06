@@ -6,6 +6,31 @@
       <h1>Safaricom STK Push</h1>
       <form action="/stk_push/" method="post" class="form">
         {% csrf_token %}
+        {% if product.user %}
+            <label for="seller ID">Seller:</label><br />
+            <input
+              class="form-control"
+              type="text"
+              id="seller"
+              name="seller"
+              value="{{ product.user.id }}"
+              required
+              readonly  
+            /><br />
+
+
+            <label for="product">Product ID:</label><br />
+            <input
+              class="form-control"
+              type="text"
+              id="product"
+              name="product"
+              value="{{ product.id }}"
+              required
+              readonly  
+            /><br />
+        {% endif %}
+
         <label for="phone">Phone Number:</label><br />
         <input
           class="form-control"

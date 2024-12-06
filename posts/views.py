@@ -19,11 +19,11 @@ def post(request):
         post = Post(
             description=description,
             image=image,
-            user=request.user  # Associate the post with the logged-in user
+            user=request.user 
         )
         post.save()
 
-        return redirect('home')  # Redirect to the view posts page after saving
+        return redirect('home')  
 
     return render(request, 'create_post.html')
 
@@ -83,7 +83,7 @@ def like_post(request, post_id):
     like, created = Like.objects.get_or_create(post=post, user=request.user)
 
     if not created:
-        like.delete()  # If the user already liked, remove the like
+        like.delete()  
 
     return JsonResponse({"likes_count": post.likes.count()})
 
@@ -93,13 +93,13 @@ def dislike_post(request, post_id):
     existing_like = Like.objects.filter(post=post, user=request.user).first()
 
     if existing_like:
-        existing_like.delete()  # Remove like if it exists
+        existing_like.delete()  #
 
     dislike, created = Dislike.objects.get_or_create(post=post, user=request.user)
 
     if not created:
-        dislike.delete()  # If the user already disliked, remove the dislike
-
+        dislike.delete()  
+        
     return JsonResponse({"dislikes_count": post.dislikes.count()})
 
 @login_required
