@@ -10,6 +10,7 @@ from datetime import datetime
 import json
 from django.core.mail import send_mail
 from django.contrib.auth.models import User
+from django.contrib.auth.decorators import login_required
 
 
 from django.core.paginator import Paginator
@@ -41,7 +42,7 @@ def generate_access_token():
     response = requests.get(auth_url, auth=(CONSUMER_KEY, CONSUMER_SECRET))
     return response.json().get('access_token')
 
-
+@login_required
 def index(request, product_id):
     try:
         product = get_object_or_404(Product, id=product_id)
@@ -206,11 +207,12 @@ def callback(request):
     return JsonResponse({"error": "Invalid request method"}, status=400)
 
 
-
+@login_required
 def waiting_page(request, transaction_id):
     transaction = Transaction.objects.get(id=transaction_id)
     return render(request, 'waiting.html', {'transaction_id': transaction_id})
 
+@login_required
 def check_status(request, transaction_id):
     transaction = Transaction.objects.filter(id=transaction_id).first()
 
@@ -227,15 +229,19 @@ def check_status(request, transaction_id):
     else:
         return JsonResponse({"status": "Unknown", "message": "Transaction is still being processed or status is unknown"})
 
+@login_required
 def payment_success(request):
     return render(request, 'payment_success.html')
 
+@login_required
 def payment_failed(request):
     return render(request, 'payment_failed.html')
 
+@login_required
 def payment_cancelled(request):
     return render(request, 'payment_cancelled.html')
 
+@login_required
 def view_payments(request):
     search_query = request.GET.get('q', '')
     page_number = request.GET.get('page', 1)
@@ -281,6 +287,7 @@ def view_payments(request):
     return render(request, 'view_payments.html', {'page_obj': page_obj})
 
 
+
 def get_account(request, seller_id):
     # Check if the seller exists
     seller = get_object_or_404(User, id=seller_id)
@@ -310,8 +317,7 @@ def get_account(request, seller_id):
     return JsonResponse(data, safe=False)
 
 
-
-
+@login_required
 def account_view(request, username):
     user = get_object_or_404(User, username=username)
     if request.user != user:
