@@ -91,12 +91,15 @@
                         <a class="nav-link" href="{% url 'my_posts' username=request.user.username %}">My Posts</a>
                     </li>
                     <li class="nav-item">
-                        <div class="search-bar">
-                            <form method="GET" action="{% url 'user_list' %}">
-                                <input type="text" name="q" class="form-control" placeholder="Search users by username..." value="{{ query }}">
-                            </form>
-                        </div>
+                        <a class="nav-link" href="{% url 'account' username=request.user.username %}">My Account</a>
                     </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'myproducts' %}">My Products</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'user_list' %}">Users</a>
+                    </li>
+                    
                 </ul>
                 <div class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" id="profileDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">

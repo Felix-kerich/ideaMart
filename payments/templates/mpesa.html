@@ -1,13 +1,13 @@
 {% extends 'layout.html' %} {% block body %}
 
-<div class="container m-5">
+<div class="container m-5 mx-auto">
   <div class="row">
     <div class="col-md-6">
-      <h1>Safaricom STK Push</h1>
+      <h1>Make M-pesa Payment</h1>
       <form action="/stk_push/" method="post" class="form">
         {% csrf_token %}
         {% if product.user %}
-            <label for="seller ID">Seller:</label><br />
+            <label for="seller">Seller ID:</label><br />
             <input
               class="form-control"
               type="text"
