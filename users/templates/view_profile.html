@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>User Profile</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="icon" href="{% static 'favicon.ico' %}" type="image/x-icon">
     <style>
         /* Navbar customization */
         .navbar {
@@ -119,6 +120,54 @@
             border-color: #007bff;
             box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
         }
+        .clickable-image {
+            cursor: pointer;
+            transition: transform 0.2s ease; 
+        }
+
+        .clickable-image:hover {
+            transform: scale(1.5);
+        }
+
+        
+        .image-container a {
+            display: inline-block;
+            text-decoration: none;
+            border: none;
+        }
+
+        .dropdown {
+            position: relative;
+            display: inline-block;
+        }
+
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            background-color: #f9f9f9;
+            min-width: 200px;
+            box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.2);
+            z-index: 1;
+            border-radius: 4px;
+        }
+
+        .dropdown:hover .dropdown-content {
+            display: block;
+        }
+
+        .dropdown-content a {
+            color: black;
+            padding: 8px 12px;
+            text-decoration: none;
+            display: block;
+        }
+
+        .dropdown-content a:hover {
+            background-color: #f1f1f1;
+        }
+        .user-profile{
+            text-align: center;
+        }
     </style>
 </head>
 <body>
@@ -167,11 +216,48 @@
     </div>
 </nav>
 
+<div class="user-profile">
+    <h1>{{ profile_user.username }}'s Profile</h1>
+
+    <div>
+        <div class="dropdown">
+            <span>Followers: {{ followers_count }}</span>
+            <div class="dropdown-content">
+                {% for follower in followers %}
+                    <a href="{% url 'view_profile' username=follower.follower.username %}">{{ follower.follower.username }}</a>
+                {% empty %}
+                    <p>No followers yet.</p>
+                {% endfor %}
+            </div>
+        </div>
+
+        <div class="dropdown">
+            <span>Following: {{ following_count }}</span>
+            <div class="dropdown-content">
+                {% for follow in following %}
+                    <a href="{% url 'view_profile' username=follow.following.username %}">{{ follow.following.username }}</a>
+                {% empty %}
+                    <p>Not following anyone yet.</p>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    </div>
+
 <!-- Profile Section -->
 <div class="container mt-4">
     <div class="profile-header text-center">
-        <img src="{% if profile_user.profile_picture %}{{ profile_user.profile_picture.url }}{% else %}{% static 'default-profile.png' %}{% endif %}" alt="Profile Picture" class="profile-image mb-3">
+        <div class="image-container">
+            <a href="{% if profile_user.profile.profile_picture %}{{ profile_user.profile.profile_picture.url }}{% else %}{% static 'default-profile.png' %}{% endif %}" target="_blank">
+              <img 
+                src="{% if profile_user.profile.profile_picture %}{{ profile_user.profile.profile_picture.url }}{% else %}{% static 'default-profile.png' %}{% endif %}" 
+                alt="Profile Picture" 
+                class="profile-image mb-3 clickable-image"
+              />
+            </a>
+          </div>
         <div>
+            
             <h2>{{ profile_user.username }}</h2>
             <h3>{{ profile_user.first_name }}</h3>
         </div>
@@ -179,21 +265,22 @@
 
     <!-- Follow/Message Buttons -->
     {% if profile_user != user %}
-        <div class="profile-action-buttons text-center">
-            {% if is_following %}
-                <button id="follow-button" class="btn btn-secondary btn-custom">Unfollow</button>
-            {% else %}
-                <button id="follow-button" class="btn btn-primary btn-custom">Follow</button>
-            {% endif %}
-            <a href="{% url 'conversation_view' user_id=profile_user.id %}" class="btn btn-success btn-custom mt-3">Message</a>
-        </div>
+    <div class="profile-action-buttons text-center">
+        {% if is_following %}
+            <button class="follow-btn btn btn-danger">Unfollow</button>
+        {% else %}
+            <button class="follow-btn btn btn-primary btn-custom">Follow</button>
+        {% endif %}
+        <a href="{% url 'conversation_view' user_id=profile_user.id %}" class="btn btn-success btn-custom mt-3">Message</a>
+    </div>
     {% endif %}
+
 
     <!-- Posts Section -->
     <div class="profile-posts">
         <h3>Posts</h3>
         {% for post in posts %}
-            <div class="post">
+            <div class="post">                
                 <small>Posted on {{ post.created_at }}</small>
                 <p class="mt-2">{{ post.description }}</p>
                 {% if post.image %}
@@ -207,20 +294,36 @@
 </div>
 
 <script>
-    document.getElementById('follow-button').addEventListener('click', function () {
-        fetch("{% url 'toggle_follow' profile_user.username %}", {
-            method: "POST",
-            headers: {
-                "X-CSRFToken": "{{ csrf_token }}"
-            }
-        })
-        .then(response => response.json())
-        .then(data => {
-            alert(data.message);
+    document.querySelectorAll('.follow-btn').forEach(button => {
+        button.addEventListener('click', function () {
+            const isFollow = this.textContent.trim() === 'Follow'; // Check if button says "Follow"
+            const username = "{{ profile_user.username }}"; // Get the username dynamically
+
+            fetch("{% url 'toggle_follow' profile_user.username %}", {
+                method: "POST",
+                headers: {
+                    "X-CSRFToken": "{{ csrf_token }}",
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({ follow: isFollow }) // Send follow/unfollow action
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error("Network response was not ok " + response.statusText);
+                }
+                return response.json();
+            })
+            .then(data => {
+                alert(data.message); // Show a message from the server
+                location.reload();   // Reload the page to reflect changes
+            })
             location.reload(); 
+            
         });
     });
 </script>
+
+
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>

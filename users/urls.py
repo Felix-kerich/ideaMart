@@ -17,6 +17,7 @@ urlpatterns = [
     path('update/', views.update_profile, name='update_profile'),
     path('user/<str:username>/', views.view_profile, name='view_profile'),
     path('profile/<str:username>/toggle-follow/', views.toggle_follow, name='toggle_follow'),
+    path('profile/<str:username>/toggle-follow/', views.toggleFollow, name='togglefollow'),
     path('messages/conversation/<int:user_id>/', views.conversation_view, name='conversation_view'),
     path('messages/send/', views.send_message, name='send_message'),
     path('users/', views.user_list, name='user_list'),

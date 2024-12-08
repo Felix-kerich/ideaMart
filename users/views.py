@@ -74,7 +74,16 @@ def register_view(request):
 def profile_view(request, username):
     # Get the user by username
     user = get_object_or_404(User, username=username)
-    return render(request, 'profile.html', {'user': user})
+    followers = user.followers.all()
+    following = user.following.all()
+    return render(request, 'profile.html', {
+        'profile_user': user,
+        'followers': followers,
+        'following': following,
+        'followers_count': followers.count(),
+        'following_count': following.count(),
+    })
+    
 
 @login_required
 def update_profile_picture(request, username):
@@ -117,27 +126,22 @@ def view_profile(request, username):
     profile_user = get_object_or_404(User, username=username)
     posts = Post.objects.filter(user=profile_user)
     is_following = Follow.objects.filter(follower=request.user, following=profile_user).exists()
+    followers = profile_user.followers.all()
+    following = profile_user.following.all()
 
-    context = {
+    return render(request, 'view_profile.html', {        
         'profile_user': profile_user,
         'posts': posts,
         'is_following': is_following,
-    }
-    return render(request, 'view_profile.html', context)
+        'followers': followers,
+        'following': following,
+        'followers_count': followers.count(),
+        'following_count': following.count(),
+    })
 
-# @login_required
-# def toggle_follow(request, username):
-#     if request.method == "POST":
-#         profile_user = get_object_or_404(User, username=username)
-#         follow, created = Follow.objects.get_or_create(follower=request.user, followed=profile_user)
-        
-#         if not created:
-#             follow.delete()  # Unfollow if already following
-#             return JsonResponse({'message': 'Unfollowed'})
-        
-#         return JsonResponse({'message': 'Followed'})
+    
 
-# View to display all users with search functionality
+
 @login_required
 def user_list(request):
     query = request.GET.get('q', '')
@@ -165,7 +169,6 @@ def toggle_follow(request, username):
 
     # Check if the current user is already following the other user
     existing_follow = Follow.objects.filter(follower=request.user, following=user_to_follow)
-
     if existing_follow.exists():
         # Unfollow the user if already followed
         existing_follow.delete()
@@ -174,6 +177,22 @@ def toggle_follow(request, username):
         Follow.objects.create(follower=request.user, following=user_to_follow)
 
     return redirect('user_list')
+
+
+
+def toggleFollow(request, username):
+    if request.method == 'POST':
+        profile_user = get_object_or_404(User, username=username)
+        if Follow.objects.filter(follower=request.user, following=profile_user).exists():
+            Follow.objects.filter(follower=request.user, following=profile_user).delete()
+            return JsonResponse({"message": "Unfollowed successfully!"})
+        else:
+            Follow.objects.create(follower=request.user, following=profile_user)
+            return JsonResponse({"message": "Followed successfully!"})
+    return JsonResponse({"message": "Invalid request method."}, status=400)
+    
+
+    
     
 @login_required
 def conversation_view(request, user_id):
@@ -229,7 +248,7 @@ def send_message(request):
                 receiver=receiver,
                 content=content
             )
-            messages.success(request, "Message sent successfully!")
+            # messages.success(request, "Message sent successfully!")
 
         return redirect('conversation_view', user_id=receiver_id)
     
@@ -243,22 +262,3 @@ def user_logout(request):
 def custom_404_view(request, exception):
     return render(request, '404.html', status=404)    
 
-# @login_required
-# def send_message(request):
-#     if request.method == 'POST':
-#         content = request.POST.get('content')
-#         receiver_id = request.POST.get('receiver_id')
-
-#         if content and receiver_id:
-#             receiver = get_object_or_404(User, id=receiver_id)
-#             message = Message.objects.create(
-#                 sender=request.user,
-#                 receiver=receiver,
-#                 content=content
-#             )
-
-#             # Redirect back to the conversation page with the receiver's ID
-#             return redirect('conversation_view', user_id=receiver.id)
-#         else:
-#             # Handle empty form submission or error
-#             return redirect('conversation_view', user_id=receiver.id)

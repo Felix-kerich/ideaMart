@@ -95,7 +95,7 @@ def stk_push(request):
                 "PartyA": phone,
                 "PartyB": SHORTCODE,
                 "PhoneNumber": phone,
-                "CallBackURL": "https://ad80-105-163-0-37.ngrok-free.app/callback/",
+                "CallBackURL": "https://3985-105-163-0-87.ngrok-free.app/callback/",
                 "AccountReference": f"Transaction_{transaction.id}",
                 "TransactionDesc": "Payment for services"
             }
@@ -158,25 +158,8 @@ def callback(request):
 
                         print(f"Transaction {transaction_id} updated as successful.")
 
-                        # Send payment receipt email
-                        if transaction.email:
-                            subject = "Payment Receipt Confirmation"
-                            message = (
-                                f"Dear {transaction.name},\n\n"
-                                f"Thank you for your payment of {transaction.amount}.\n"
-                                f"Your Mpesa transaction code is {transaction.mpesa_receipt_number}.\n\n"
-                                "Best regards,\n"
-                                "Apen Softwares"
-                            )
-                            send_mail(
-                                subject,
-                                message,
-                                'ezraopande@gmail.com',
-                                [transaction.email],
-                                fail_silently=False,
-                            )
-                            print("Payment receipt email sent successfully.")
-
+                        #
+                        
                     elif result_code == 1:  # Payment failed
                         transaction.status = "Failed"
                         transaction.description = result_desc

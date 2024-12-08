@@ -29,14 +29,14 @@ def post(request):
 
 @login_required
 def view_posts(request):
-    posts = Post.objects.all()
+    posts = Post.objects.all().order_by('-created_at')
     return render(request, 'posts.html', {"posts": posts})
 
 @login_required
 def my_posts(request, username):
     # Get the user by username
     user = get_object_or_404(User, username=username)
-    posts = Post.objects.filter(user=user)
+    posts = Post.objects.filter(user=user).order_by('-created_at')
     return render(request, 'mypost.html', {'posts': posts, 'user': user})
 
 
